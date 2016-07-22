@@ -53,6 +53,7 @@ SESSION.verify = False
 
 global_password = None
 global_token = None
+global_args = None
 access_token = None
 DEBUG = True
 VERBOSE_DEBUG = False  # if you want to write raw request/response to the console
@@ -502,8 +503,10 @@ def get_args():
     parser.set_defaults(DEBUG=True)
     return parser.parse_args()
 
-@memoize
-def login(args):
+# @memoize
+def login(args=None):
+    if args is None:
+        args = global_args
     global global_password
     if not global_password:
       if args.password:
@@ -547,6 +550,7 @@ def login(args):
     return api_endpoint, access_token, profile_response
 
 def main():
+    global global_args
     full_path = os.path.realpath(__file__)
     (path, filename) = os.path.split(full_path)
 
@@ -578,6 +582,7 @@ def main():
     	global is_ampm_clock
     	is_ampm_clock = True
 
+    global_args = args
     api_endpoint, access_token, profile_response = login(args)
 
     clear_stale_pokemons()
@@ -656,7 +661,7 @@ def process_step(args, api_endpoint, access_token, profile_response,
                 for wild in cell.WildPokemon:
                     hash = wild.SpawnPointId;
                     if hash not in seen.keys() or (seen[hash].TimeTillHiddenMs <= wild.TimeTillHiddenMs):
-                        visible.append(wild)    
+                        visible.append(wild)
                     seen[hash] = wild.TimeTillHiddenMs
                 if cell.Fort:
                     for Fort in cell.Fort:
